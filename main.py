@@ -1,30 +1,10 @@
 from selenium import webdriver 
 
 
-def web_scraper(state_name):
-    webdriver.Chrome("./chromedriver")
-    
-    
-    pass
-"""    try:
-        
-        pass
-    except:
-        
-        self.driver.quit()
-        
+def web_scraper(state_name, state):
+    browser = webdriver.Chrome("./chromedriver")
+    browser.get(f"https://www.uschamber.com/co/chambers/{state_name}")
 
-    try:
-        
-
-    except:
-        self.driver.quit()
-        
-
-    self.driver.quit()
-
-
-    return     """
 
 #everything past this point is just for the GUI and doesn't matter for the web scraper. 
 #------------------------------------------------------------------------------------------#
@@ -108,8 +88,8 @@ class main_screen():
 
 
         #output label
-        label = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36, 'bold'))
-        label.place(relwidth=1, relheight=0.5)
+        state = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36, 'bold'))
+        state.place(relwidth=1, relheight=0.5)
 
 
 
@@ -121,7 +101,7 @@ class main_screen():
         #I only want its command to run once, when it's clicked so I made a 
         #simple lambda function that invokes the weather_bot function
         self.button = tk.Button(self.weather_frame, text="Get Weather", font=('Courier', 28), bg='white', 
-            command=lambda:web_scraper(self.entry.get()))
+            command=lambda:web_scraper(self.entry.get(), state))
         self.button.place(relx=0.7, relheight=1, relwidth=0.3)
 
 
