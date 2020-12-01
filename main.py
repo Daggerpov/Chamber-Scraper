@@ -1,9 +1,17 @@
-from selenium import webdriver 
-
+from bs4 import BeautifulSoup
+import requests
 
 def web_scraper(state_name, state):
-    browser = webdriver.Chrome("./chromedriver")
-    browser.get(f"https://www.uschamber.com/co/chambers/{state_name}")
+    url = f'https://www.uschamber.com/co/chambers/{state_name}'
+    header = {"From":"Daniel Agapov <danielagapov1@gmail.com"}
+
+    response = requests.get(url, headers=header)
+    if response.status_code != 200: print("Failed to get HTML:", response.status_code, response.reason); exit()
+
+    html = response.text 
+    
+    
+    
 
 
 #everything past this point is just for the GUI and doesn't matter for the web scraper. 
