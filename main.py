@@ -1,7 +1,16 @@
-import selenium
+from selenium import webdriver 
 
+#will change web driver depending on the OS (Linux/MacOS)
+from sys import platform
+import os
 
 def web_scraper(state_name):
+    if platform == 'linux' or platform == 'linux2':
+        webdriver.Chrome("./chromedriver")
+    elif platform == 'darwin':
+        webdriver.Chrome("")
+    else:
+        print("Error! Platform not supported.")
     
     pass
 """    try:
