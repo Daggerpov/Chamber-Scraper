@@ -1,15 +1,19 @@
 from bs4 import BeautifulSoup
 import requests
 
-def web_scraper(state_name, state):
-    url = f'https://www.uschamber.com/co/chambers/{state_name}'
+def web_scraper(state, name, chamber_member_bool, address, website, phone_number):
+    url = f'https://www.uschamber.com/co/chambers/{state}'
     header = {"From":"Daniel Agapov <danielagapov1@gmail.com"}
 
     response = requests.get(url, headers=header)
     if response.status_code != 200: print("Failed to get HTML:", response.status_code, response.reason); exit()
 
-    html = response.text 
+    soup = BeautifulSoup(response.text, "html5lib")
     
+    for chamber in soup.select(".chamber-finder__item"):
+        chamber = chamber.text.replace('\n', '').replace('  ', '')
+        print(chamber)
+        exit()
     
     
 
@@ -95,9 +99,26 @@ class main_screen():
         self.lower_frame.place(relx=0.5, rely=0.25, relwidth=0.75, relheight=0.6, anchor='n')
 
 
-        #output label
-        state = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36, 'bold'))
-        state.place(relwidth=1, relheight=0.5)
+
+
+
+        name = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36))
+        name.place(relwidth=1, relheight=0.5)
+
+        chamber_member_bool = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36))
+        chamber_member_bool.place(relwidth=1, relheight=0.5)
+
+        address = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36))
+        address.place(relwidth=1, relheight=0.5)
+
+        website = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36))
+        website.place(relwidth=1, relheight=0.5)
+
+        phone_number = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36))
+        phone_number.place(relwidth=1, relheight=0.5)
+
+        '''accredited = tk.Label(self.lower_frame, bg="#99aab5", font=('Courier', 36))
+        accredited.place(relwidth=1, relheight=0.5)'''
 
 
 
@@ -108,8 +129,8 @@ class main_screen():
         #button for weather entry
         #I only want its command to run once, when it's clicked so I made a 
         #simple lambda function that invokes the weather_bot function
-        self.button = tk.Button(self.weather_frame, text="Get Weather", font=('Courier', 28), bg='white', 
-            command=lambda:web_scraper(self.entry.get(), state))
+        self.button = tk.Button(self.weather_frame, text="Web Scrape", font=('Courier', 28), bg='white', 
+            command=lambda:web_scraper(self.entry.get(), name, chamber_member_bool, address, website, phone_number))
         self.button.place(relx=0.7, relheight=1, relwidth=0.3)
 
 
