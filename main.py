@@ -39,15 +39,22 @@ def web_scraper(state, name, website, phone_number, address, address2, chamber_m
 
 global index ; index = 0
 
-def increase_index():
-    print("increase")
+#this first function may seem redundant, but I need it to pass in these variables for the 
+#state so that the index resets for every state entered. 
+
+def state_entry(state, name, website, phone_number, address, address2, chamber_member_bool):
+    global index ; index = 0
+    web_scraper(state, name, website, phone_number, address, address2, chamber_member_bool)
+
+def increase_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index
     index += 1
+    web_scraper(state, name, website, phone_number, address, address2, chamber_member_bool)
 
-def decrease_index():
-    print("decrease")
+def decrease_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index
     index -= 1
+    web_scraper(state, name, website, phone_number, address, address2, chamber_member_bool)
 
 #everything past this point is just for the GUI and doesn't matter for the web scraper. 
 #------------------------------------------------------------------------------------------#
@@ -157,7 +164,7 @@ class main_screen():
         #I only want its command to run once, when it's clicked so I made a 
         #simple lambda function that invokes the web_scraper function
         self.button = tk.Button(self.weather_frame, text="Web Scrape", font=('Courier', 24), bg='white', 
-            command=lambda:web_scraper(self.entry.get(), name, website, phone_number, address, address2, chamber_member_bool))
+            command=lambda:state_entry(self.entry.get(), name, website, phone_number, address, address2, chamber_member_bool))
         self.button.place(relx=0.7, relheight=1, relwidth=0.3)
 
 
@@ -171,10 +178,9 @@ class main_screen():
         self.previous_pic_label = tk.Label(self.master, image=self.previous_pic)
         self.previous_pic_label.place(relwidth=0.1, relheight=0.17786, rely=0.45, relx=0.0125)
 
-        #putting a button at the same spot as the label, essentially
-        #making it into one
+        #putting a button at the same spot as the label, essentially making it into one.
         self.previous_pic_button = tk.Button(self.master, image=self.previous_pic, 
-        command=lambda:decrease_index())
+        command=lambda:decrease_index(self.entry.get(), name, website, phone_number, address, address2, chamber_member_bool))
         self.previous_pic_button.place(relwidth=0.1, relheight=0.17786, rely=0.45, relx=0.0125)
 
         
@@ -185,7 +191,7 @@ class main_screen():
                                                                                         #this so that it'd be proportional to width.
 
         self.next_pic_button = tk.Button(self.master, image=self.next_pic, 
-        command=lambda:increase_index())
+        command=lambda:increase_index(self.entry.get(), name, website, phone_number, address, address2, chamber_member_bool))
         self.next_pic_button.place(relwidth=0.1, relheight=0.17786, rely=0.45, relx=0.885) 
 
         
