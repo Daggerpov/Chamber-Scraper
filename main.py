@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import csv
 
-def web_scraper(state, name, website, phone_number, address, address2, chamber_member_bool='This is not a U.S. Chamber Member.'):
+def web_scraper(state):
     if len(state.split()) == 2: 
         state = state.replace(' ', '-')
     url = f'https://www.uschamber.com/co/chambers/{state.lower()}'
@@ -13,29 +14,49 @@ def web_scraper(state, name, website, phone_number, address, address2, chamber_m
     if response.status_code != 200: print("Failed to get HTML:", response.status_code, response.reason); exit()
 
     soup = BeautifulSoup(response.text, "html5lib")
-    
-    chambers = soup.select(".chamber-finder__item")
+
+    return soup.select(".chamber-finder__item")
+
+def retrieve_info(state, name_info, website_info, phone_number_info, address_info, address2_info, chamber_member_bool_info):
+    chambers = web_scraper(state)
     current_chamber = chambers[index]
     lines = current_chamber.text.split('\n')
+    
+    #default param values weren't working with this function, so I resorted to using these assigned values.
+    chamber_member_bool_info = 'This is not a U.S. Chamber Member.'
+    website_info = ''
+    phone_number_info = ''
+    address_info, address2_info = '', ''
 
     for line in lines:
         if 'U.S. Chamber Member' in line:
-            chamber_member_bool['text'] = 'This is a U.S. Chamber Member.'
-        
+            chamber_member_bool_info = 'This is a U.S. Chamber Member.'
+                
         if 'Website—' in line:
-            website['text'] = line.replace('Website—', '').replace(' ', '')
+            website_info = line.replace('Website—', '').replace(' ', '')
+
         
         if 'Phone Number—' in line:
-            phone_number['text'] = line.replace('Phone Number—', '').replace(' ', '')
+            phone_number_info = line.replace('Phone Number—', '').replace(' ', '')
+
 
         if 'Address—' in line:
             line_number = lines.index(line)
             split_address = lines[line_number+2:line_number+4]
-            address['text'] = str(split_address[0]).replace('  ', '')
-            address2['text'] = str(split_address[1]).replace('  ', '')
+            address_info = str(split_address[0]).replace('  ', '')
+            address2_info = str(split_address[1]).replace('  ', '')
 
         
-    name['text'] = lines[2].replace('  ', '')    
+    name_info = lines[2].replace('  ', '')    
+
+    return name_info, chamber_member_bool_info, website_info, phone_number_info, address_info, address2_info
+
+def csv_entry(state): 
+    '''chambers = web_scraper(state)
+    table = []
+    for i in chambers:
+'''
+    pass
 
 global index ; index = 0
 
@@ -44,17 +65,20 @@ global index ; index = 0
 
 def state_entry(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index ; index = 0
-    web_scraper(state, name, website, phone_number, address, address2, chamber_member_bool)
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(
+        state, name, website, phone_number, address, address2, chamber_member_bool)
+    #csv_entry(state)
+
 
 def increase_index(state, name, website, phone_number, address, address2, chamber_member_bool):
-    global index
-    index += 1
-    web_scraper(state, name, website, phone_number, address, address2, chamber_member_bool)
+    global index; index += 1
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(
+        state, name, website, phone_number, address, address2, chamber_member_bool)
 
 def decrease_index(state, name, website, phone_number, address, address2, chamber_member_bool):
-    global index
-    index -= 1
-    web_scraper(state, name, website, phone_number, address, address2, chamber_member_bool)
+    global index; index -= 1
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(
+        state, name, website, phone_number, address, address2, chamber_member_bool)
 
 #everything past this point is just for the GUI and doesn't matter for the web scraper. 
 #------------------------------------------------------------------------------------------#
@@ -162,7 +186,7 @@ class main_screen():
 
         #button for state entry
         #I only want its command to run once, when it's clicked so I made a 
-        #simple lambda function that invokes the web_scraper function
+        #simple lambda that invokes the info_display function
         self.button = tk.Button(self.weather_frame, text="Web Scrape", font=('Courier', 24), bg='white', 
             command=lambda:state_entry(self.entry.get(), name, website, phone_number, address, address2, chamber_member_bool))
         self.button.place(relx=0.7, relheight=1, relwidth=0.3)
