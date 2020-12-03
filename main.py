@@ -53,7 +53,7 @@ def csv_entry(state):
     chambers = web_scraper(state)
     
     #clears spreadsheet
-    with open("./chambers.csv", "w", encoding="utf-8", newline="") as f:
+    with open(f"./chambers/{state}.csv", "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerows([])
 
@@ -62,7 +62,7 @@ def csv_entry(state):
         lines = current_chamber.text.split('\n')
         table.append(retrieve_info(state, lines, current_chamber))
 
-        with open("./chambers.csv", "a", encoding="utf-8", newline="") as f:
+        with open(f"./chambers/{state}.csv", "a", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
             writer.writerows(table)
         
