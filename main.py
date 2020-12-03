@@ -17,16 +17,10 @@ def web_scraper(state):
 
     return soup.select(".chamber-finder__item")
 
-def retrieve_info(state, name_info, website_info, phone_number_info, address_info, address2_info, chamber_member_bool_info):
+def retrieve_info(state, chamber_member_bool_info='This is not a U.S. Chamber Member.', website_info='', phone_number_info='', address_info='', address2_info=''):
     chambers = web_scraper(state)
     current_chamber = chambers[index]
     lines = current_chamber.text.split('\n')
-    
-    #default param values weren't working with this function, so I resorted to using these assigned values.
-    chamber_member_bool_info = 'This is not a U.S. Chamber Member.'
-    website_info = ''
-    phone_number_info = ''
-    address_info, address2_info = '', ''
 
     for line in lines:
         if 'U.S. Chamber Member' in line:
@@ -47,7 +41,10 @@ def retrieve_info(state, name_info, website_info, phone_number_info, address_inf
             address2_info = str(split_address[1]).replace('  ', '')
 
         
-    name_info = lines[2].replace('  ', '')    
+    name_not_formatted = lines[2].split()
+    name_info = ''
+    for i in name_not_formatted:
+        name_info += i + ' '
 
     return name_info, chamber_member_bool_info, website_info, phone_number_info, address_info, address2_info
 
@@ -65,20 +62,17 @@ global index ; index = 0
 
 def state_entry(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index ; index = 0
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(
-        state, name, website, phone_number, address, address2, chamber_member_bool)
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state)
     #csv_entry(state)
 
 
 def increase_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index; index += 1
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(
-        state, name, website, phone_number, address, address2, chamber_member_bool)
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state)
 
 def decrease_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index; index -= 1
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(
-        state, name, website, phone_number, address, address2, chamber_member_bool)
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state)
 
 #everything past this point is just for the GUI and doesn't matter for the web scraper. 
 #------------------------------------------------------------------------------------------#
