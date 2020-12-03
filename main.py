@@ -17,10 +17,15 @@ def web_scraper(state):
 
     return soup.select(".chamber-finder__item")
 
-def retrieve_info(state, lines, chamber_member_bool_info='This is not a U.S. Chamber Member.', website_info='', phone_number_info='', address_info='', address2_info=''):
+def retrieve_info(state, lines, current_chamber, chamber_member_bool_info='', website_info='', phone_number_info='', address_info='', address2_info='', accredited_info=''):
     for line in lines:
+        stars = 0
+        for star in current_chamber.find_all(class_="icon-star"):
+            stars += 1
+            accredited_info = f'{stars} / 5'
+        
         if 'U.S. Chamber Member' in line:
-            chamber_member_bool_info = 'This is a U.S. Chamber Member.'
+            chamber_member_bool_info = 'U.S. Chamber Member'
                 
         if 'Website—' in line:
             website_info = line.replace('Website—', '').replace(' ', '')
@@ -42,7 +47,7 @@ def retrieve_info(state, lines, chamber_member_bool_info='This is not a U.S. Cha
     for i in name_not_formatted:
         name_info += i + ' '
 
-    return name_info, chamber_member_bool_info, website_info, phone_number_info, address_info, address2_info
+    return name_info, chamber_member_bool_info, website_info, phone_number_info, address_info, address2_info, accredited_info
 
 def csv_entry(state): 
     chambers = web_scraper(state)
@@ -55,8 +60,8 @@ def csv_entry(state):
     for current_chamber in chambers:
         table = []
         lines = current_chamber.text.split('\n')
-        table.append(retrieve_info(state, lines))
-        
+        table.append(retrieve_info(state, lines, current_chamber))
+
         with open("./chambers.csv", "a", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
             writer.writerows(table)
@@ -69,27 +74,54 @@ global index ; index = 0
 
 def state_entry(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index ; index = 0
+    
     chambers = web_scraper(state)
     current_chamber = chambers[index]
     lines = current_chamber.text.split('\n')
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state, lines)
+    
+    name['text'], chamber_member_bool['text'], website['text'], \
+    phone_number['text'], address['text'], address2['text'], \
+    accredited_text = retrieve_info(state, lines, current_chamber)
+    
+    if chamber_member_bool['text'] != '' and accredited_text != '':
+        chamber_member_bool['text'] += f'  |  {accredited_text}'
+    elif accredited_text != '':
+        chamber_member_bool['text'] = accredited_text
     
     csv_entry(state)
 
 
 def increase_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index; index += 1
+    
     chambers = web_scraper(state)
     current_chamber = chambers[index]
     lines = current_chamber.text.split('\n')
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state, lines)
+    
+    name['text'], chamber_member_bool['text'], website['text'], \
+    phone_number['text'], address['text'], address2['text'], \
+    accredited_text = retrieve_info(state, lines, current_chamber)
+
+    if chamber_member_bool['text'] != '' and accredited_text != '':
+        chamber_member_bool['text'] += f'  |  {accredited_text}'
+    elif accredited_text != '':
+        chamber_member_bool['text'] = accredited_text
 
 def decrease_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index; index -= 1
+    
     chambers = web_scraper(state)
     current_chamber = chambers[index]
     lines = current_chamber.text.split('\n')
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state, lines)
+    
+    name['text'], chamber_member_bool['text'], website['text'], \
+    phone_number['text'], address['text'], address2['text'], \
+    accredited_text = retrieve_info(state, lines, current_chamber)
+
+    if chamber_member_bool['text'] != '' and accredited_text != '':
+        chamber_member_bool['text'] += f'  |  {accredited_text}'
+    elif accredited_text != '':
+        chamber_member_bool['text'] = accredited_text
 
 #everything past this point is just for the GUI and doesn't matter for the web scraper. 
 #------------------------------------------------------------------------------------------#
