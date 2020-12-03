@@ -17,11 +17,7 @@ def web_scraper(state):
 
     return soup.select(".chamber-finder__item")
 
-def retrieve_info(state, chamber_member_bool_info='This is not a U.S. Chamber Member.', website_info='', phone_number_info='', address_info='', address2_info=''):
-    chambers = web_scraper(state)
-    current_chamber = chambers[index]
-    lines = current_chamber.text.split('\n')
-
+def retrieve_info(state, lines, chamber_member_bool_info='This is not a U.S. Chamber Member.', website_info='', phone_number_info='', address_info='', address2_info=''):
     for line in lines:
         if 'U.S. Chamber Member' in line:
             chamber_member_bool_info = 'This is a U.S. Chamber Member.'
@@ -37,8 +33,8 @@ def retrieve_info(state, chamber_member_bool_info='This is not a U.S. Chamber Me
         if 'Address—' in line:
             line_number = lines.index(line)
             split_address = lines[line_number+2:line_number+4]
-            address_info = str(split_address[0]).replace('  ', '')
-            address2_info = str(split_address[1]).replace('  ', '')
+            address_info = split_address[0].replace('  ', '')
+            address2_info = split_address[1].replace('  ', '')
 
         
     name_not_formatted = lines[2].split()
@@ -49,11 +45,22 @@ def retrieve_info(state, chamber_member_bool_info='This is not a U.S. Chamber Me
     return name_info, chamber_member_bool_info, website_info, phone_number_info, address_info, address2_info
 
 def csv_entry(state): 
-    '''chambers = web_scraper(state)
-    table = []
-    for i in chambers:
-'''
-    pass
+    chambers = web_scraper(state)
+    
+    #clears spreadsheet
+    with open("./chambers.csv", "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows([])
+
+    for current_chamber in chambers:
+        table = []
+        lines = current_chamber.text.split('\n')
+        table.append(retrieve_info(state, lines))
+        
+        with open("./chambers.csv", "a", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(table)
+        
 
 global index ; index = 0
 
@@ -62,17 +69,27 @@ global index ; index = 0
 
 def state_entry(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index ; index = 0
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state)
-    #csv_entry(state)
+    chambers = web_scraper(state)
+    current_chamber = chambers[index]
+    lines = current_chamber.text.split('\n')
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state, lines)
+    
+    csv_entry(state)
 
 
 def increase_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index; index += 1
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state)
+    chambers = web_scraper(state)
+    current_chamber = chambers[index]
+    lines = current_chamber.text.split('\n')
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state, lines)
 
 def decrease_index(state, name, website, phone_number, address, address2, chamber_member_bool):
     global index; index -= 1
-    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state)
+    chambers = web_scraper(state)
+    current_chamber = chambers[index]
+    lines = current_chamber.text.split('\n')
+    name['text'], chamber_member_bool['text'], website['text'], phone_number['text'], address['text'], address2['text'] = retrieve_info(state, lines)
 
 #everything past this point is just for the GUI and doesn't matter for the web scraper. 
 #------------------------------------------------------------------------------------------#
